@@ -1,13 +1,7 @@
 class ReviewsController < ApplicationController
   before_action :set_review, only: [:show, :edit, :update, :destroy]
+  before_action :set_movie
   before_action :authenticate_user!
-
-  def index
-    @reviews = Review.all
-  end
-
-  def show
-  end
 
   def new
     @review = Review.new
@@ -19,29 +13,26 @@ class ReviewsController < ApplicationController
   def create
     @review = Review.new(review_params)
     @review.user_id = current_user.id
+    @review.movie_id = @movie.id
 
       if @review.save
-        redirect_to @review, notice: 'Review was successfully created.'
+        redirect_to @movie, notice: 'Review was successfully created.'
       else
         render :new
       end
-    end
   end
 
   def update
-    respond_to do |format|
       if @review.update(review_params)
-        redirect_to @review, notice: 'Review was successfully updated.'
+        redirect_to @movie, notice: 'Review was successfully updated.'
       else
         render :edit
       end
-    end
   end
 
   def destroy
     @review.destroy
-    redirect_to reviews_url, notice: 'Review was successfully destroyed.'
-    end
+    redirect_to @movie, notice: 'Review was successfully destroyed.'
   end
 
   private
@@ -49,7 +40,12 @@ class ReviewsController < ApplicationController
       @review = Review.find(params[:id])
     end
 
+    def set_movie
+      @movie = Movie.find(params[:movie_id])
+    end
+
     def review_params
       params.require(:review).permit(:rating, :comment)
     end
+
 end
